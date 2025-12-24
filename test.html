@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scroll Photo Story</title>
+
+<style>
+/* ===== RESET ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #000;
+  color: #fff;
+  overflow-x: hidden;
+  position: relative;
+}
+
+section {
+  width: 100%;
+  position: relative;
+}
+
+/* ===== HERO ===== */
+.hero {
+  height: calc(var(--vh, 1vh) * 100);
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #111 0%, #000 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .hero-bg { object-fit: contain; }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  font-size: 32px;
+  text-align: center;
+}
+
+/* ===== FIREWORKS ===== */
+#fireworks {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* ===== TIMELINE ===== */
+.timeline {
+  height: 1200vh;
+  background: #0b0b0b;
+  transition: background 0.8s ease;
+}
+
+.timeline-inner {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.year {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: min(40vw, 300px);
+  font-weight: 700;
+  z-index: 5;
+}
+
+.timeline-line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 0;
+  background: white;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+/* ===== MONTH CARDS ===== */
+.month {
+  position: absolute;
+  top: 50%;
+  width: 320px;
+  height: 220px;
+  border-radius: 16px;
+  overflow: hidden;
+
+  background-image: var(--img);
+  background-size: cover;
+  background-position: center;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  opacity: 0;
+  z-index: 2;
+}
+
+.month.left  { left: 8%; }
+.month.right { right: 8%; }
+
+.month::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.65),
+    rgba(0,0,0,0.15)
+  );
+  z-index: 1;
+}
+
+.month span {
+  position: relative;
+  z-index: 2;
+  padding: 12px 18px;
+  font-size: 18px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+/* ===== SCROLL STORY ===== */
+.scroll-story {
+  height: 300vh;
+  background: #0c0c0c;
+}
+
+.scroll-inner {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.center-text {
+  position: relative;
+  z-index: 10;
+  max-width: 620px;
+  text-align: center;
+  font-size: clamp(18px, 3vw, 28px);
+  line-height: 1.5;
+  padding: 20px;
+}
+
+.photo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(28vw, 340px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.photo img {
+  width: 100%;
+  display: block;
+  border-radius: 18px;
+}
+
+/* ===== FINAL ===== */
+.final { background: black; }
+
+.final-video { object-fit: cover; }
+
+@media (max-width: 768px) {
+  .final-video { object-fit: contain; }
+}
+
+/* ===== SNOW / HEARTS ===== */
+.snowflake, .heart {
+  position: fixed;
+  top: -10px;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.snowflake {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  animation: fall linear infinite;
+}
+
+.heart {
+  width: 12px;
+  height: 12px;
+  background: red;
+  transform: rotate(45deg);
+  animation: fall linear infinite;
+}
+
+.heart::before,
+.heart::after {
+  content:'';
+  position:absolute;
+  width:12px;
+  height:12px;
+  background:red;
+  border-radius:50%;
+}
+
+.heart::before { top:-6px; left:0; }
+.heart::after { left:6px; top:0; }
+
+@keyframes fall {
+  to { transform: translateY(110vh) rotate(360deg); }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <video class="hero-bg" src="photo/Sushka.mp4" autoplay muted loop playsinline preload="auto"></video>
+  <canvas id="fireworks"></canvas>
+  <div class="hero-content" style="font-family: 'Calibri Light', Calibri, sans-serif; font-weight: 300; font-style: italic;">Поздравляю с Новым годом!</div>
+</section>
+
+<!-- TIMELINE -->
+<section class="timeline" id="timeline">
+  <div class="timeline-inner">
+    <div class="year" id="year">2025</div>
+    <div class="timeline-line" id="line"></div>
+
+    <div class="month left"  style="--i:0;--img:url('photo/jan.jpg')"><span>Январь</span></div>
+    <div class="month right" style="--i:1;--img:url('photo/fab.jpg')"><span>Февраль</span></div>
+    <div class="month left"  style="--i:2;--img:url('photo/mar.jpg')"><span>Март</span></div>
+    <div class="month right" style="--i:3;--img:url('photo/apr1.jpg')"><span>Апрель</span></div>
+    <div class="month left"  style="--i:4;--img:url('photo/may.jpg')"><span>Май</span></div>
+    <div class="month right" style="--i:5;--img:url('photo/jun.jpg')"><span>Июнь</span></div>
+    <div class="month left"  style="--i:6;--img:url('photo/jul.jpg')"><span>Июль</span></div>
+    <div class="month right" style="--i:7;--img:url('photo/aug.jpg')"><span>Август</span></div>
+    <div class="month left"  style="--i:8;--img:url('photo/sep.jpg')"><span>Сентябрь</span></div>
+    <div class="month right" style="--i:9;--img:url('photo/oct.jpg')"><span>Октябрь</span></div>
+    <div class="month left"  style="--i:10;--img:url('photo/nov.jpg')"><span>Ноябрь</span></div>
+    <div class="month right" style="--i:11;--img:url('photo/dec.jpg')"><span>Декабрь</span></div>
+  </div>
+</section>
+
+<!-- STORY -->
+<section class="scroll-story" id="story">
+  <div class="scroll-inner">
+    <div class="photo" id="p1"><img src="photo/photo1.jpg"></div>
+    <div class="photo" id="p2"><img src="photo/photo2.jpg"></div>
+    <div class="photo" id="p3"><img src="photo/photo3.jpg"></div>
+    <div class="photo" id="p4"><img src="photo/photo4.jpg"></div>
+    <div class="photo" id="p5"><img src="photo/photo5.jpg"></div>
+    <div class="photo" id="p6"><img src="photo/photo6.jpg"></div>
+    <div class="photo" id="p7"><img src="photo/photo7.jpg"></div> <!-- исправил дубликат -->
+
+    <div class="center-text">
+      Этот текст остаётся в центре.<br>
+      А воспоминания появляются вокруг.<br>
+      Медленно. Как при прокрутке памяти.
+    </div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="hero final" id="final">
+  <video class="hero-bg final-video" src="photo/Elka2.mp4" muted playsinline preload="none"></video>
+</section>
+
+<script>
+/* ===== HELPERS ===== */
+const clamp=(v,min,max)=>Math.min(Math.max(v,min),max);
+const lerp=(a,b,t)=>a+(b-a)*t;
+
+/* ===== VH FIX ===== */
+function setVH(){
+  document.documentElement.style.setProperty('--vh',`${window.innerHeight*0.01}px`);
+}
+setVH();
+addEventListener('resize',setVH);
+
+/* ===== TIMELINE ===== */
+const timeline=document.getElementById('timeline');
+const year=document.getElementById('year');
+const line=document.getElementById('line');
+const months=document.querySelectorAll('.month');
+
+function animateTimeline(){
+  const q=timeline.getBoundingClientRect();
+  const p=clamp((innerHeight-q.top)/q.height,0,1);
+
+  year.style.transform=`scale(${lerp(1,0.3,p)})`;
+  year.style.opacity=1-p*1.3;
+  line.style.height=`${p*100}%`;
+
+  months.forEach((m,i)=>{
+    const start=0.05+i*0.08;
+    const l=clamp((p-start)/0.08,0,1);
+    m.style.opacity=l;
+    m.style.transform=`translateY(${lerp(40,0,l)}px)`;
+  });
+
+  /* ===== НОВАЯ ФИЧА: смена фона + сердечки ===== */
+  // Прогресс для Мая (~i=4) и Июня (~i=5)
+  const mayProgress  = clamp((p - 0.35) / 0.12, 0, 1);  // май
+  const juneProgress = clamp((p - 0.45) / 0.12, 0, 1);  // июнь
+
+  // Цвета: базовый #0b0b0b → май #2a0f1c → июнь #ff4fa3
+  let baseR = 11, baseG = 11, baseB = 11;
+  let mayR = 42, mayG = 15, mayB = 28;
+  let juneR = 255, juneG = 79, juneB = 163;
+
+  let r = lerp(baseR, mayR, mayProgress);
+  let g = lerp(baseG, mayG, mayProgress);
+  let b = lerp(baseB, mayB, mayProgress);
+
+  r = lerp(r, juneR, juneProgress);
+  g = lerp(g, juneG, juneProgress);
+  b = lerp(b, juneB, juneProgress);
+
+  timeline.style.background = `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+
+  // Переключение снежинок ↔ сердечек
+  if (juneProgress > 0) {
+    document.querySelectorAll('.snowflake').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.heart').forEach(el => el.style.display = 'block');
+  } else {
+    document.querySelectorAll('.snowflake').forEach(el => el.style.display = 'block');
+    document.querySelectorAll('.heart').forEach(el => el.style.display = 'none');
+  }
+
+  // После завершения таймлайна возвращаем снег и базовый фон
+  if (p >= 1) {
+    timeline.style.background = '#0b0b0b';
+    document.querySelectorAll('.snowflake').forEach(el => el.style.display = 'block');
+    document.querySelectorAll('.heart').forEach(el => el.style.display = 'none');
+  }
+
+  requestAnimationFrame(animateTimeline);
+}
+animateTimeline();
+
+/* ===== SCROLL PHOTOS ===== */
+const story=document.getElementById('story');
+const photos=document.querySelectorAll('.photo'); // теперь 7 фото
+const data=[
+  {x:-420,y:-40,r:-12,d:0.05},
+  {x:420,y:40,r:12,d:0.1},
+  {x:-300,y:200,r:-8,d:0.25},
+  {x:300,y:-200,r:8,d:0.35},
+  {x:-200,y:340,r:-6,d:0.5},
+  {x:200,y:-340,r:6,d:0.6},
+  {x:-100,y:200,r:10,d:0.7} // добавил для 7-го фото, можно подправить
+];
+let sp=0;
+
+function animatePhotos(){
+  const r=story.getBoundingClientRect();
+  const raw=clamp((innerHeight-r.top)/r.height,0,1);
+  sp=lerp(sp,raw,0.08);
+
+  photos.forEach((el,i)=>{
+    const p=data[i] || data[0]; // на случай, если фото больше, чем данных
+    const l=clamp((sp-p.d)/0.4,0,0.75);
+    el.style.opacity=l;
+    el.style.transform=`translate(-50%,-50%) translate(${lerp(p.x,0,l)}px,${lerp(p.y,0,l)}px) rotate(${lerp(p.r,p.r*0.4,l)}deg)`;
+  });
+
+  requestAnimationFrame(animatePhotos);
+}
+animatePhotos();
+
+/* ===== SNOW ===== */
+for(let i=0;i<80;i++){
+  const s=document.createElement('div');
+  s.className='snowflake';
+  s.style.left=Math.random()*100+'vw';
+  s.style.animationDuration=5+Math.random()*5+'s';
+  s.style.opacity=Math.random()*0.8+0.2;
+  s.style.width = s.style.height = `${Math.random()*4+6}px`;
+  document.body.appendChild(s);
+}
+
+/* ===== HEARTS (новое) ===== */
+for(let i=0;i<40;i++){
+  const h=document.createElement('div');
+  h.className='heart';
+  h.style.left=Math.random()*100+'vw';
+  h.style.animationDuration=5+Math.random()*5+'s';
+  h.style.opacity=Math.random()*0.8+0.2;
+  h.style.width = h.style.height = `${Math.random()*6+8}px`;
+  h.style.display='none'; // изначально скрыты
+  document.body.appendChild(h);
+}
+
+/* ===== FIREWORKS (ONCE) ===== */
+if(!sessionStorage.getItem('fw')){
+  sessionStorage.setItem('fw','1');
+  const c=document.getElementById('fireworks'),x=c.getContext('2d');
+  c.width=innerWidth;c.height=innerHeight;
+  const p=[...Array(160)].map(()=>({
+    x:c.width/2,y:c.height/2,
+    vx:(Math.random()-0.5)*10,
+    vy:(Math.random()-0.5)*10,
+    l:1,r:Math.random()*4+2,
+    c:`hsl(${Math.random()*360},80%,60%)`
+  }));
+  (function a(){
+    x.clearRect(0,0,c.width,c.height);
+    p.forEach(o=>{
+      o.x+=o.vx;o.y+=o.vy;o.vy+=0.05;o.l-=0.015;
+      x.globalAlpha=o.l;
+      x.fillStyle=o.c;
+      x.beginPath();x.arc(o.x,o.y,o.r,0,Math.PI*2);x.fill();
+    });
+    x.globalAlpha=1;
+    p.some(o=>o.l>0)?requestAnimationFrame(a):c.remove();
+  })();
+}
+
+/* ===== FINAL VIDEO ===== */
+const final=document.getElementById('final');
+const fv=final.querySelector('video');
+let played=false;
+
+new IntersectionObserver(e=>{
+  if(e[0].isIntersecting&&!played){
+    played=true;
+    fv.preload='auto';
+    fv.play();
+  }
+},{threshold:0.8}).observe(final);
+</script>
+
+</body>
+</html>
