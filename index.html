@@ -165,10 +165,27 @@ section {
   position: relative;
   z-index: 10;
   max-width: 620px;
+  max-height: 80vh;
+  overflow-y: auto;
+
   text-align: center;
-  font-size: clamp(18px, 3vw, 28px);
-  line-height: 1.5;
+  font-size: clamp(16px, 3vw, 26px);
+  line-height: 1.6;
   padding: 20px;
+
+  white-space: pre-line;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.3) transparent;
+}
+
+.center-text::-webkit-scrollbar {
+  width: 4px;
+}
+
+.center-text::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 4px;
 }
 
 .photo {
@@ -244,13 +261,21 @@ section {
 <section class="hero">
   <video class="hero-bg" src="photo/Sushka.mp4" autoplay muted loop playsinline preload="auto"></video>
   <canvas id="fireworks"></canvas>
-  <div class="hero-content" style="font-family: 'Calibri Light', Calibri, sans-serif; font-weight: 300; font-style: italic;">Поздравляю с Новым годом!</div>
+  <div class="hero-content" style="font-family: 'Calibri Light', Calibri, sans-serif; font-weight: 300; font-style: italic; -webkit-user-select: none; /* Chrome/Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE/Edge */
+  user-select: none; /* Стандартный синтаксис */
+">Поздравляю с Новым годом!</div>
 </section>
 
 <!-- TIMELINE -->
 <section class="timeline" id="timeline">
   <div class="timeline-inner">
-    <div class="year" id="year">2025</div>
+    <div class="year" id="year" style="-webkit-user-select: none; /* Chrome/Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE/Edge */
+  user-select: none; /* Стандартный синтаксис */
+    ">2025</div>
     <div class="timeline-line" id="line"></div>
 
     <div class="month left"  style="--i:0;--img:url('photo/jan.jpg')"><span>Январь</span></div>
@@ -277,12 +302,42 @@ section {
     <div class="photo" id="p4"><img src="photo/photo4.jpg"></div>
     <div class="photo" id="p5"><img src="photo/photo5.jpg"></div>
     <div class="photo" id="p6"><img src="photo/photo6.jpg"></div>
-    <div class="photo" id="p7"><img src="photo/photo7.jpg"></div> <!-- исправил дубликат -->
+    <!-- <div class="photo" id="p7"><img src="photo/photo7.jpg"></div> исправил дубликат -->
 
-    <div class="center-text">
-      Этот текст остаётся в центре.<br>
-      А воспоминания появляются вокруг.<br>
-      Медленно. Как при прокрутке памяти.
+    <div class="center-text" style="
+  text-shadow:
+    0 2px 6px rgba(0,0,0,0.6),
+    0 6px 18px rgba(0,0,0,0.45);
+ -webkit-user-select: none; /* Chrome/Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE/Edge */
+  user-select: none; /* Стандартный синтаксис */
+">
+      Поздравляю тебя с Новым годом!
+      Сложно назвать 2025 год хорошим — как минимум пока что.
+      В нём произошло много неприятных событий, как глобальных, так и личных.
+
+      Но, несмотря на это, он был богат и хорошими моментами.
+      Поделюсь парой из них.
+
+      2025 год начался с того, что я наконец-то собрал себе игровой компьютер
+      и тем самым закрыл детскую мечту.
+
+      В 2025 году я добился права на АГС.
+      Да, это, конечно, всего лишь меньшее зло из двух,
+      но я не обязан идти в армию.
+
+      2025 год — это год исполнения большой цели и мечты:
+      получение прав на мотоцикл и его покупка.
+
+      Но одно событие в 2025 году было особеннее других.
+      В этом году я встретил тебя!
+      Это самый счастливый момент года.
+
+      Я очень сильно тебя люблю
+      и хочу, чтобы в 2026 году (да и во все остальные года)
+      мы делали друг друга ещё счастливее
+      и любили только сильнее!
     </div>
   </div>
 </section>
@@ -444,17 +499,29 @@ if(!sessionStorage.getItem('fw')){
 }
 
 /* ===== FINAL VIDEO ===== */
-const final=document.getElementById('final');
-const fv=final.querySelector('video');
-let played=false;
+const final = document.getElementById('final');
+const fv = final.querySelector('video');
 
-new IntersectionObserver(e=>{
-  if(e[0].isIntersecting&&!played){
-    played=true;
-    fv.preload='auto';
+let loaded = false;
+let played = false;
+
+new IntersectionObserver(entries => {
+  const e = entries[0];
+
+  if (e.intersectionRatio > 0 && !loaded) {
+    loaded = true;
+    fv.preload = 'auto';
+    fv.load();
+  }
+
+  if (e.isIntersecting && !played) {
+    played = true;
     fv.play();
   }
-},{threshold:0.8}).observe(final);
+}, {
+  rootMargin: '300px',
+  threshold: [0, 0.4]
+}).observe(final);
 </script>
 
 </body>
